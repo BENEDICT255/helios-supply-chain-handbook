@@ -2,7 +2,8 @@ import React from 'react';
 import { Metadata } from 'next';
 import PageHeader from '@/components/ui/PageHeader';
 import ButtonLink from '@/components/ui/ButtonLink';
-import { MailIcon, BuildingIcon, ClockSmallIcon, UserIcon, InfoIcon } from '@/components/icons/Icons';
+import { MailIcon, BuildingIcon, ClockSmallIcon, UserIcon } from '@/components/icons/Icons';
+import { getSiteInformation } from '@/services/siteInfo';
 
 export const metadata: Metadata = {
   title: 'Contact Supply Chain',
@@ -10,7 +11,24 @@ export const metadata: Metadata = {
     'Get in touch with the Helios Towers Supply Chain team for guidance and assistance with procurement requests.',
 };
 
-export default function ContactPage() {
+export const revalidate = 0; // Dynamic server fetching
+
+export default async function ContactPage() {
+  let email = 'supplychain@example.com';
+  let office = 'Supply Chain Department';
+  let workingHours = 'Monday to Friday, 08:00–17:00';
+
+  try {
+    const siteInfo = await getSiteInformation();
+    if (siteInfo) {
+      email = siteInfo.contact_email || email;
+      office = siteInfo.office || office;
+      workingHours = siteInfo.working_hours || workingHours;
+    }
+  } catch (err) {
+    console.error('Supabase fetch fallback for contact page:', err);
+  }
+
   return (
     <>
       <PageHeader
@@ -19,12 +37,6 @@ export default function ContactPage() {
       />
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 space-y-8">
-        {/* Placeholder banner */}
-        <div className="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-xs font-semibold text-amber-900">
-          <InfoIcon size={18} className="shrink-0 text-amber-600" />
-          <span>Placeholder contact details — replace before publishing.</span>
-        </div>
-
         <div className="grid gap-8 md:grid-cols-2">
           {/* Contact Details Card */}
           <div className="rounded-xl border border-[var(--border-grey)] bg-white p-6 shadow-xs space-y-6">
@@ -51,10 +63,10 @@ export default function ContactPage() {
                   <dt className="font-semibold text-[var(--text-primary)]">Email</dt>
                   <dd className="text-[var(--text-muted)]">
                     <a
-                      href="mailto:supplychain@example.com"
+                      href={`mailto:${email}`}
                       className="text-[var(--primary-blue)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--primary-blue)] rounded"
                     >
-                      supplychain@example.com
+                      {email}
                     </a>
                   </dd>
                 </div>
@@ -66,7 +78,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <dt className="font-semibold text-[var(--text-primary)]">Office</dt>
-                  <dd className="text-[var(--text-muted)]">Supply Chain Department</dd>
+                  <dd className="text-[var(--text-muted)]">{office}</dd>
                 </div>
               </div>
 
@@ -76,13 +88,13 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <dt className="font-semibold text-[var(--text-primary)]">Working Hours</dt>
-                  <dd className="text-[var(--text-muted)]">Monday to Friday, 08:00–17:00</dd>
+                  <dd className="text-[var(--text-muted)]">{workingHours}</dd>
                 </div>
               </div>
             </dl>
 
             <div className="pt-4 flex flex-wrap gap-3">
-              <ButtonLink href="mailto:supplychain@example.com" variant="primary" id="contact-email-btn">
+              <ButtonLink href={`mailto:${email}`} variant="primary" id="contact-email-btn">
                 Email Supply Chain
               </ButtonLink>
               <ButtonLink href="/faqs" variant="secondary" id="contact-faqs-btn">

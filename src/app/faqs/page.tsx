@@ -3,7 +3,9 @@ import { Metadata } from 'next';
 import PageHeader from '@/components/ui/PageHeader';
 import FAQAccordion from '@/components/faqs/FAQAccordion';
 import ButtonLink from '@/components/ui/ButtonLink';
-import { faqs, faqCategories } from '@/data/faqs';
+import { getPublishedFaqs, getFaqCategories } from '@/services/faqs';
+import { faqs as fallbackFaqs, faqCategories as fallbackCategories } from '@/data/faqs';
+import type { FAQItem } from '@/types';
 
 export const metadata: Metadata = {
   title: 'Frequently Asked Questions',
@@ -11,7 +13,34 @@ export const metadata: Metadata = {
     'Find clear answers to common questions about procurement procedures, delivery timelines and responsibilities.',
 };
 
-export default function FAQPage() {
+export const revalidate = 0; // Dynamic server fetching
+
+export default async function FAQPage() {
+  let faqItems: FAQItem[] = [];
+  let categories: string[] = [];
+
+  try {
+    const dbFaqs = await getPublishedFaqs();
+    const dbCategories = await getFaqCategories();
+
+    if (dbFaqs && dbFaqs.length > 0) {
+      faqItems = dbFaqs.map((faq, idx) => ({
+        id: idx + 1,
+        question: faq.question,
+        answer: faq.answer,
+        category: faq.category,
+      }));
+      categories = dbCategories;
+    } else {
+      faqItems = fallbackFaqs;
+      categories = fallbackCategories;
+    }
+  } catch (err) {
+    console.error('Supabase fetch fallback to static data:', err);
+    faqItems = fallbackFaqs;
+    categories = fallbackCategories;
+  }
+
   return (
     <>
       <PageHeader
@@ -21,7 +50,7 @@ export default function FAQPage() {
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 space-y-12">
         {/* Accordion List */}
-        <FAQAccordion faqs={faqs} categories={faqCategories} />
+        <FAQAccordion faqs={faqItems} categories={categories} />
 
         {/* Still Need Help callout */}
         <div className="rounded-xl border border-[var(--border-grey)] bg-[var(--light-grey)] p-8 text-center space-y-4">

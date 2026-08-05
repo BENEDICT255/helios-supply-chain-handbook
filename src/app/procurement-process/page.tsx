@@ -4,7 +4,9 @@ import PageHeader from '@/components/ui/PageHeader';
 import ProcessTimeline from '@/components/procurement/ProcessTimeline';
 import NoticeBox from '@/components/ui/NoticeBox';
 import ButtonLink from '@/components/ui/ButtonLink';
-import { procurementSteps } from '@/data/procurementSteps';
+import { getPublishedProcurementSteps } from '@/services/procurementSteps';
+import { procurementSteps as fallbackSteps } from '@/data/procurementSteps';
+import type { ProcurementStep } from '@/types';
 
 export const metadata: Metadata = {
   title: 'Procurement Process',
@@ -12,7 +14,29 @@ export const metadata: Metadata = {
     'Understand what happens from the moment a business requirement is identified until the requested goods or services are delivered and received.',
 };
 
-export default function ProcurementProcessPage() {
+export const revalidate = 0; // Dynamic server fetching
+
+export default async function ProcurementProcessPage() {
+  let steps: ProcurementStep[] = [];
+
+  try {
+    const dbSteps = await getPublishedProcurementSteps();
+    if (dbSteps && dbSteps.length > 0) {
+      steps = dbSteps.map((step, idx) => ({
+        id: idx + 1,
+        title: step.title,
+        description: step.description,
+        responsibleParty: step.responsible_party || '',
+        expectedDuration: step.expected_duration || '',
+      }));
+    } else {
+      steps = fallbackSteps;
+    }
+  } catch (err) {
+    console.error('Supabase fetch fallback to static data:', err);
+    steps = fallbackSteps;
+  }
+
   return (
     <>
       <PageHeader
@@ -27,7 +51,7 @@ export default function ProcurementProcessPage() {
         </NoticeBox>
 
         {/* Timeline representation */}
-        <ProcessTimeline steps={procurementSteps} />
+        <ProcessTimeline steps={steps} />
 
         {/* Action Link */}
         <div className="flex justify-center pt-4">

@@ -3,7 +3,9 @@ import { Metadata } from 'next';
 import PageHeader from '@/components/ui/PageHeader';
 import DeliveryTimelineExplorer from '@/components/delivery/DeliveryTimelineExplorer';
 import NoticeBox from '@/components/ui/NoticeBox';
-import { deliveryTimelines, departments } from '@/data/deliveryTimelines';
+import { getPublishedDeliveryTimelines, getDeliveryDepartments } from '@/services/deliveryTimelines';
+import { deliveryTimelines as fallbackTimelines, departments as fallbackDepartments } from '@/data/deliveryTimelines';
+import type { DeliveryTimelineItem } from '@/types';
 
 export const metadata: Metadata = {
   title: 'Delivery Timelines',
@@ -11,7 +13,39 @@ export const metadata: Metadata = {
     'Search or browse the indicative lead times for commonly requested goods and services across Helios Towers departments.',
 };
 
-export default function DeliveryTimelinesPage() {
+export const revalidate = 0; // Dynamic server fetching
+
+export default async function DeliveryTimelinesPage() {
+  let items: DeliveryTimelineItem[] = [];
+  let depts: string[] = [];
+
+  try {
+    const dbItems = await getPublishedDeliveryTimelines();
+    const dbDepts = await getDeliveryDepartments();
+
+    if (dbItems && dbItems.length > 0) {
+      items = dbItems.map((item, idx) => ({
+        id: idx + 1,
+        department: item.department,
+        category: item.category,
+        item: item.item,
+        estimatedLeadTime: item.estimated_lead_time,
+        requirements: item.requirements || '',
+        notes: item.notes || '',
+        status: item.status,
+        displayOrder: item.display_order,
+      }));
+      depts = dbDepts;
+    } else {
+      items = fallbackTimelines;
+      depts = fallbackDepartments;
+    }
+  } catch (err) {
+    console.error('Supabase fetch fallback to static data:', err);
+    items = fallbackTimelines;
+    depts = fallbackDepartments;
+  }
+
   return (
     <>
       <PageHeader
@@ -28,8 +62,8 @@ export default function DeliveryTimelinesPage() {
         {/* Searchable and Filterable Explorer */}
         <Suspense fallback={<div className="py-8 text-center text-sm text-gray-500">Loading timelines...</div>}>
           <DeliveryTimelineExplorer
-            items={deliveryTimelines}
-            departments={departments}
+            items={items}
+            departments={depts}
           />
         </Suspense>
       </div>
