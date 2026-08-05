@@ -1,94 +1,110 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { navigationItems } from '@/data/navigation';
-import { MenuIcon, CloseIcon } from '@/components/icons/Icons';
-import MobileNavigation from './MobileNavigation';
+import { ChevronDownIcon } from '@/components/icons/Icons';
+import HeliosLogo from './HeliosLogo';
 
 export default function Header() {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[var(--navy)]">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        {/* Brand */}
-        <Link
-          href="/"
-          className="group flex flex-col leading-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--navy)] rounded"
-          id="header-brand"
-        >
-          <span className="text-base font-bold text-white sm:text-lg">
-            Helios Towers
-          </span>
-          <span className="text-xs font-medium text-blue-200/70 sm:text-sm">
-            Supply Chain Handbook
-          </span>
-        </Link>
+    <header className="sticky top-0 z-50 bg-[#0B1726] text-white shadow-md border-b border-white/10">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+        {/* Brand Logo Only */}
+        <div className="shrink-0">
+          <Link
+            href="/"
+            className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded"
+            id="header-brand"
+          >
+            <HeliosLogo />
+          </Link>
+        </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:block" aria-label="Main navigation">
-          <ul className="flex items-center gap-1">
-            {navigationItems.map((item) => {
-              const isActive =
-                item.href === '/'
-                  ? pathname === '/'
-                  : pathname.startsWith(item.href);
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`rounded-md px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
-                      isActive
-                        ? 'bg-white/10 text-white'
-                        : 'text-blue-100/70 hover:bg-white/5 hover:text-white'
-                    }`}
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
+        {/* Header Navigation Panel (On the exact same line on the right) */}
+        <nav aria-label="Main navigation" className="flex items-center">
+          <ul className="flex items-center gap-5 sm:gap-7 text-xs sm:text-sm font-medium">
+            {/* 1. Home */}
+            <li>
+              <Link
+                href="/"
+                className={`inline-block py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                  pathname === '/'
+                    ? 'border-b-2 border-[#00A8E8] text-white font-bold'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                aria-current={pathname === '/' ? 'page' : undefined}
+              >
+                Home
+              </Link>
+            </li>
+
+            {/* 2. Procurement Process */}
+            <li>
+              <Link
+                href="/procurement-process"
+                className={`inline-block py-1 whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                  pathname.startsWith('/procurement-process')
+                    ? 'border-b-2 border-[#00A8E8] text-white font-bold'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                aria-current={pathname.startsWith('/procurement-process') ? 'page' : undefined}
+              >
+                Procurement Process
+              </Link>
+            </li>
+
+            {/* 3. Delivery Timelines v */}
+            <li>
+              <Link
+                href="/delivery-timelines"
+                className={`inline-flex items-center gap-1 py-1 whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                  pathname.startsWith('/delivery-timelines')
+                    ? 'border-b-2 border-[#00A8E8] text-white font-bold'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                aria-current={pathname.startsWith('/delivery-timelines') ? 'page' : undefined}
+              >
+                <span>Delivery Timelines</span>
+                <ChevronDownIcon size={14} className="text-gray-300 shrink-0" />
+              </Link>
+            </li>
+
+            {/* 4. Frequently Asked Questions */}
+            <li>
+              <Link
+                href="/faqs"
+                className={`inline-block py-1 transition-colors leading-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                  pathname.startsWith('/faqs')
+                    ? 'border-b-2 border-[#00A8E8] text-white font-bold'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                aria-current={pathname.startsWith('/faqs') ? 'page' : undefined}
+              >
+                <span className="block">Frequently Asked</span>
+                <span className="block">Questions</span>
+              </Link>
+            </li>
+
+            {/* 5. Contact Supply Chain */}
+            <li>
+              <Link
+                href="/contact"
+                className={`inline-block py-1 whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+                  pathname.startsWith('/contact')
+                    ? 'border-b-2 border-[#00A8E8] text-white font-bold'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                aria-current={pathname.startsWith('/contact') ? 'page' : undefined}
+              >
+                Contact Supply Chain
+              </Link>
+            </li>
           </ul>
         </nav>
-
-        {/* Mobile Menu Toggle */}
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 text-blue-100/70 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 lg:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="mobile-navigation"
-          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-          id="mobile-menu-toggle"
-        >
-          {mobileMenuOpen ? <CloseIcon size={24} /> : <MenuIcon size={24} />}
-        </button>
       </div>
-
-      {/* Mobile Navigation */}
-      <MobileNavigation
-        isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-      />
     </header>
   );
 }

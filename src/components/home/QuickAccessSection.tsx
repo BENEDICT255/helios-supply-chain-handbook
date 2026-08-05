@@ -1,27 +1,27 @@
 import React from 'react';
-import IconBadge from '@/components/ui/IconBadge';
 import QuickAccessCard from './QuickAccessCard';
-import { OpenBookIcon, ClipboardGearIcon, ClockIcon, QuestionBubbleIcon } from '@/components/icons/Icons';
+import { OpenBookIcon } from '@/components/icons/Icons';
 
 export default function QuickAccessSection() {
   return (
-    <section className="bg-[var(--light-grey)]" id="quick-access-section">
-      <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
-          <IconBadge size="sm">
-            <OpenBookIcon size={20} className="text-[var(--primary-blue)]" />
-          </IconBadge>
-          <h2 className="text-2xl font-bold tracking-tight text-[var(--text-primary)] sm:text-3xl">
+    <section className="bg-white pt-4 pb-12 sm:pt-6 sm:pb-16" id="quick-access-section">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        {/* Top Header with Book Icon */}
+        <div className="flex flex-col items-center text-center">
+          <OpenBookIcon size={32} className="text-[#005B94]" strokeWidth={1.5} />
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#004B87] sm:text-3xl">
             Quick Access
           </h2>
+          <p className="mt-2 max-w-xl text-xs sm:text-sm text-gray-600">
+            Select a section below or use the search icon in the navigation bar to quickly find information.
+          </p>
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-[var(--text-muted)]">
-          Select a section below or use the search function to quickly find information.
-        </p>
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/* 3 Equal Cards in a Single Row */}
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-5">
           <QuickAccessCard
-            icon={<ClipboardGearIcon size={28} className="text-[var(--primary-blue)]" />}
+            imageSrc="/images/Procurement processes.jpeg"
+            imageAlt="Procurement Process"
             title="Procurement Process"
             description="Understand the steps from identifying a requirement through approval, sourcing, purchase order and delivery."
             buttonLabel="View Process"
@@ -29,7 +29,8 @@ export default function QuickAccessSection() {
             id="qa-procurement"
           />
           <QuickAccessCard
-            icon={<ClockIcon size={28} className="text-[var(--primary-blue)]" />}
+            imageSrc="/images/Delivery timeline.jpeg"
+            imageAlt="Delivery Timelines"
             title="Delivery Timelines"
             description="Check the expected lead times for commonly requested goods, services and procurement categories."
             buttonLabel="Browse Timelines"
@@ -37,7 +38,8 @@ export default function QuickAccessSection() {
             id="qa-delivery"
           />
           <QuickAccessCard
-            icon={<QuestionBubbleIcon size={28} className="text-[var(--primary-blue)]" />}
+            imageSrc="/images/FAQs.jpeg"
+            imageAlt="Frequently Asked Questions"
             title="Frequently Asked Questions"
             description="Find clear answers to common questions about procurement procedures, timelines and responsibilities."
             buttonLabel="View FAQs"

@@ -3,7 +3,14 @@
 import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { navigationItems } from '@/data/navigation';
+
+const mobileNavItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Procurement Process', href: '/procurement-process' },
+  { label: 'Delivery Timelines', href: '/delivery-timelines' },
+  { label: 'Frequently Asked Questions', href: '/faqs' },
+  { label: 'Contact Supply Chain', href: '/contact' },
+];
 
 interface MobileNavigationProps {
   isOpen: boolean;
@@ -41,9 +48,9 @@ export default function MobileNavigation({ isOpen, onClose }: MobileNavigationPr
         isOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
       }`}
     >
-      <nav className="border-t border-white/10 bg-[var(--navy)] px-4 pb-4 pt-2" aria-label="Mobile navigation">
+      <nav className="border-t border-white/10 bg-[#0B1726] px-4 pb-4 pt-2" aria-label="Mobile navigation">
         <ul className="flex flex-col gap-1">
-          {navigationItems.map((item) => {
+          {mobileNavItems.map((item) => {
             const isActive =
               item.href === '/'
                 ? pathname === '/'
@@ -55,8 +62,8 @@ export default function MobileNavigation({ isOpen, onClose }: MobileNavigationPr
                   onClick={onClose}
                   className={`block rounded-md px-4 py-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
                     isActive
-                      ? 'bg-white/10 text-white'
-                      : 'text-blue-100/70 hover:bg-white/5 hover:text-white'
+                      ? 'bg-white/10 text-white font-semibold'
+                      : 'text-gray-300 hover:bg-white/5 hover:text-white'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
                 >

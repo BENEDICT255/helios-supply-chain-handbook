@@ -1,36 +1,24 @@
 import React from 'react';
-import Link from 'next/link';
-import { navigationItems } from '@/data/navigation';
 import { siteInfo } from '@/data/siteInfo';
 
 export default function Footer() {
   return (
-    <footer className="mt-auto bg-[var(--navy)] text-blue-100/70">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Navigation Links */}
-        <nav className="mb-6" aria-label="Footer navigation">
-          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            {navigationItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="text-sm transition-colors hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <footer className="mt-auto bg-[#0B1726] text-gray-400 border-t border-white/10">
+      <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8 text-xs font-medium">
+        {/* Left Side Info */}
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-center sm:text-left">
+          <span>&copy; 2026 Helios Towers</span>
+          <span className="text-gray-600">|</span>
+          <span>Supply Chain Handbook</span>
+          <span className="text-gray-600">|</span>
+          <span>{siteInfo.disclaimer}</span>
+          <span className="text-gray-600">|</span>
+          <span>Version {siteInfo.version}</span>
+        </div>
 
-        {/* Divider */}
-        <div className="border-t border-white/10 pt-6">
-          <p className="text-center text-xs leading-relaxed text-blue-100/50">
-            {siteInfo.disclaimer} | {siteInfo.title} | Version {siteInfo.version}
-          </p>
-          <p className="mt-1 text-center text-xs text-blue-100/40">
-            Last Updated: {siteInfo.lastUpdated}
-          </p>
+        {/* Right Side Last Updated */}
+        <div className="shrink-0 text-center sm:text-right text-gray-400">
+          Last Updated: {siteInfo.lastUpdated}
         </div>
       </div>
     </footer>

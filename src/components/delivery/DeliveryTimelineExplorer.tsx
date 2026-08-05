@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DeliveryTimelineItem } from '@/types';
 import DeliverySearch from './DeliverySearch';
 import DepartmentFilters from './DepartmentFilters';
@@ -17,8 +18,17 @@ export default function DeliveryTimelineExplorer({
   items,
   departments,
 }: DeliveryTimelineExplorerProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams ? searchParams.get('search') || '' : '';
+
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
+  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery);
   const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
+
+  if (urlQuery !== prevUrlQuery) {
+    setPrevUrlQuery(urlQuery);
+    setSearchQuery(urlQuery);
+  }
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -87,7 +97,7 @@ export default function DeliveryTimelineExplorer({
           <button
             type="button"
             onClick={handleClearFilters}
-            className="text-xs font-semibold text-[var(--primary-blue)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--primary-blue)] rounded px-2 py-1"
+            className="text-xs font-semibold text-[#005B94] hover:underline focus:outline-none focus:ring-2 focus:ring-[#005B94] rounded px-2 py-1"
             id="clear-delivery-filters"
           >
             Clear Filters

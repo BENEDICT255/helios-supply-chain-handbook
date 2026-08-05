@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Metadata } from 'next';
 import PageHeader from '@/components/ui/PageHeader';
 import DeliveryTimelineExplorer from '@/components/delivery/DeliveryTimelineExplorer';
@@ -26,10 +26,12 @@ export default function DeliveryTimelinesPage() {
         </NoticeBox>
 
         {/* Searchable and Filterable Explorer */}
-        <DeliveryTimelineExplorer
-          items={deliveryTimelines}
-          departments={departments}
-        />
+        <Suspense fallback={<div className="py-8 text-center text-sm text-gray-500">Loading timelines...</div>}>
+          <DeliveryTimelineExplorer
+            items={deliveryTimelines}
+            departments={departments}
+          />
+        </Suspense>
       </div>
     </>
   );
