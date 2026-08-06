@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import AdminHeader from '@/components/admin/AdminHeader';
 import DataTable, { Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
@@ -25,11 +24,6 @@ import { procurementStepSchema, ProcurementStepFormData } from '@/lib/validation
 export default function AdminProcurementStepsPage() {
   const { data, loading, error, refetch } = useProcurementSteps();
   const { user } = useAuth();
-  const searchParams = useSearchParams();
-  const paramHighlight = searchParams.get('highlight');
-
-  // Highlight State for newly inserted records
-  const [highlightedId, setHighlightedId] = useState<string | null>(paramHighlight);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -168,7 +162,6 @@ export default function AdminProcurementStepsPage() {
           action: 'create',
           newData: created as unknown as Record<string, unknown>,
         });
-        setHighlightedId(created.id);
       }
 
       setIsModalOpen(false);
@@ -288,7 +281,6 @@ export default function AdminProcurementStepsPage() {
             onDelete={(item) => setDeleteItem(item)}
             onToggleStatus={handleToggleStatus}
             searchPlaceholder="Search step title, description, responsible party..."
-            highlightedId={highlightedId}
           />
 
           {/* Quick Step Order Controls */}
