@@ -2,37 +2,38 @@ import { createClient } from '@/lib/supabase/client';
 import type { DbDeliveryTimeline } from '@/types/database';
 import type { DeliveryTimelineFormData } from '@/lib/validations/delivery';
 
-const supabase = createClient();
-
 export async function getAllDeliveryTimelines(): Promise<DbDeliveryTimeline[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('delivery_timelines')
     .select('*')
     .order('display_order', { ascending: true });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to fetch delivery timelines');
   return (data as DbDeliveryTimeline[]) ?? [];
 }
 
 export async function getPublishedDeliveryTimelines(): Promise<DbDeliveryTimeline[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('delivery_timelines')
     .select('*')
     .eq('status', 'published')
     .order('display_order', { ascending: true });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to fetch published delivery timelines');
   return (data as DbDeliveryTimeline[]) ?? [];
 }
 
 export async function getDeliveryTimelineById(id: string): Promise<DbDeliveryTimeline | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('delivery_timelines')
     .select('*')
     .eq('id', id)
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to fetch delivery timeline record');
   return data as DbDeliveryTimeline;
 }
 
@@ -40,6 +41,7 @@ export async function createDeliveryTimeline(
   formData: DeliveryTimelineFormData,
   userId: string
 ): Promise<DbDeliveryTimeline> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('delivery_timelines')
     .insert({
@@ -50,7 +52,7 @@ export async function createDeliveryTimeline(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to create delivery timeline');
   return data as DbDeliveryTimeline;
 }
 
@@ -59,6 +61,7 @@ export async function updateDeliveryTimeline(
   formData: Partial<DeliveryTimelineFormData>,
   userId: string
 ): Promise<DbDeliveryTimeline> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('delivery_timelines')
     .update({
@@ -70,17 +73,18 @@ export async function updateDeliveryTimeline(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to update delivery timeline');
   return data as DbDeliveryTimeline;
 }
 
 export async function deleteDeliveryTimeline(id: string): Promise<void> {
+  const supabase = createClient();
   const { error } = await supabase
     .from('delivery_timelines')
     .delete()
     .eq('id', id);
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to delete delivery timeline');
 }
 
 export async function updateDeliveryTimelineStatus(
@@ -88,6 +92,7 @@ export async function updateDeliveryTimelineStatus(
   status: 'published' | 'draft',
   userId: string
 ): Promise<void> {
+  const supabase = createClient();
   const { error } = await supabase
     .from('delivery_timelines')
     .update({
@@ -97,16 +102,17 @@ export async function updateDeliveryTimelineStatus(
     })
     .eq('id', id);
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to update timeline status');
 }
 
 export async function getDeliveryDepartments(): Promise<string[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('delivery_timelines')
     .select('department')
     .eq('status', 'published');
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to fetch departments');
   const departments = [...new Set((data ?? []).map((d: { department: string }) => d.department))];
   return departments.sort();
 }

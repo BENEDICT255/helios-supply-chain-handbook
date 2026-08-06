@@ -2,16 +2,17 @@ import { createClient } from '@/lib/supabase/client';
 import type { DbSiteInformation } from '@/types/database';
 import type { SiteInfoFormData } from '@/lib/validations/site-info';
 
-const supabase = createClient();
-
 export async function getSiteInformation(): Promise<DbSiteInformation | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('site_information')
     .select('*')
     .eq('id', 1)
     .single();
 
-  if (error && error.code !== 'PGRST116') throw error;
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(error.message || 'Failed to fetch site information');
+  }
   return data as DbSiteInformation | null;
 }
 
@@ -19,6 +20,7 @@ export async function updateSiteInformation(
   formData: SiteInfoFormData,
   userId: string
 ): Promise<DbSiteInformation> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('site_information')
     .upsert({
@@ -30,6 +32,6 @@ export async function updateSiteInformation(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to update site information');
   return data as DbSiteInformation;
 }

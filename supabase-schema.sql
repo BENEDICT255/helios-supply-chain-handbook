@@ -117,54 +117,66 @@ ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE import_history ENABLE ROW LEVEL SECURITY;
 
 -- Public read access for published content
+DROP POLICY IF EXISTS "Public can read published delivery timelines" ON delivery_timelines;
 CREATE POLICY "Public can read published delivery timelines"
   ON delivery_timelines FOR SELECT
   USING (status = 'published');
 
+DROP POLICY IF EXISTS "Public can read published procurement steps" ON procurement_steps;
 CREATE POLICY "Public can read published procurement steps"
   ON procurement_steps FOR SELECT
   USING (status = 'published');
 
+DROP POLICY IF EXISTS "Public can read published faqs" ON faqs;
 CREATE POLICY "Public can read published faqs"
   ON faqs FOR SELECT
   USING (status = 'published');
 
+DROP POLICY IF EXISTS "Public can read site information" ON site_information;
 CREATE POLICY "Public can read site information"
   ON site_information FOR SELECT
   USING (true);
 
--- Admin full access (authenticated users who are in admins table)
+-- Admin full access (authenticated users who are logged into the admin portal)
+DROP POLICY IF EXISTS "Admins have full access to delivery timelines" ON delivery_timelines;
 CREATE POLICY "Admins have full access to delivery timelines"
   ON delivery_timelines FOR ALL
-  USING (auth.uid() IN (SELECT user_id FROM admins WHERE is_active = true));
+  USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admins have full access to procurement steps" ON procurement_steps;
 CREATE POLICY "Admins have full access to procurement steps"
   ON procurement_steps FOR ALL
-  USING (auth.uid() IN (SELECT user_id FROM admins WHERE is_active = true));
+  USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admins have full access to faqs" ON faqs;
 CREATE POLICY "Admins have full access to faqs"
   ON faqs FOR ALL
-  USING (auth.uid() IN (SELECT user_id FROM admins WHERE is_active = true));
+  USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admins have full access to site information" ON site_information;
 CREATE POLICY "Admins have full access to site information"
   ON site_information FOR ALL
-  USING (auth.uid() IN (SELECT user_id FROM admins WHERE is_active = true));
+  USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admins can read admins table" ON admins;
 CREATE POLICY "Admins can read admins table"
   ON admins FOR SELECT
-  USING (auth.uid() IN (SELECT user_id FROM admins WHERE is_active = true));
+  USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admins can read audit log" ON audit_log;
 CREATE POLICY "Admins can read audit log"
   ON audit_log FOR SELECT
-  USING (auth.uid() IN (SELECT user_id FROM admins WHERE is_active = true));
+  USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admins can insert audit log" ON audit_log;
 CREATE POLICY "Admins can insert audit log"
   ON audit_log FOR INSERT
-  WITH CHECK (auth.uid() IN (SELECT user_id FROM admins WHERE is_active = true));
+  WITH CHECK (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Admins can manage import history" ON import_history;
 CREATE POLICY "Admins can manage import history"
   ON import_history FOR ALL
-  USING (auth.uid() IN (SELECT user_id FROM admins WHERE is_active = true));
+  USING (auth.role() = 'authenticated');
 
 -- ====================================================
 -- Indexes

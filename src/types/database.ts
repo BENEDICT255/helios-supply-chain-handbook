@@ -93,3 +93,54 @@ export interface DbImportHistory {
   error_details: Record<string, unknown> | null;
   created_at: string;
 }
+
+export type BatchStatus =
+  | 'uploaded'
+  | 'validating'
+  | 'validation_failed'
+  | 'ready_for_review'
+  | 'draft'
+  | 'applying'
+  | 'applied'
+  | 'published'
+  | 'failed'
+  | 'rolled_back';
+
+export interface DbImportBatch {
+  id: string;
+  file_name: string;
+  workbook_version: string;
+  uploaded_by: string | null;
+  uploaded_by_email: string | null;
+  uploaded_at: string;
+  status: BatchStatus;
+  total_rows: number;
+  valid_rows: number;
+  invalid_rows: number;
+  warning_count: number;
+  proposed_inserts: number;
+  proposed_updates: number;
+  proposed_unpublishes: number;
+  proposed_deletes: number;
+  confirmed_by: string | null;
+  confirmed_at: string | null;
+  published_at: string | null;
+  rollback_status: 'none' | 'eligible' | 'rolled_back' | 'conflict_blocked';
+  rolled_back_by: string | null;
+  rolled_back_at: string | null;
+  validation_summary: Record<string, unknown> | null;
+  original_file_path: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbDataSnapshot {
+  id: string;
+  batch_id: string;
+  table_name: string;
+  record_id: string;
+  snapshot_data: Record<string, unknown>;
+  action_type: 'update' | 'delete' | 'unpublish';
+  created_by: string | null;
+  created_at: string;
+}
