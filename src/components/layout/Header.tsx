@@ -1,17 +1,19 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDownIcon } from '@/components/icons/Icons';
+import { ChevronDownIcon, MenuIcon, CloseIcon } from '@/components/icons/Icons';
 import HeliosLogo from './HeliosLogo';
+import MobileNavigation from './MobileNavigation';
 
 export default function Header() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0B1726] text-white shadow-md border-b border-white/10">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 bg-[#0B1726] text-white shadow-md border-b border-white/10 w-full">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         {/* Brand Logo Only */}
         <div className="shrink-0">
           <Link
@@ -23,8 +25,8 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Header Navigation Panel (On the exact same line on the right) */}
-        <nav aria-label="Main navigation" className="flex items-center">
+        {/* Desktop Header Navigation Panel */}
+        <nav aria-label="Main navigation" className="hidden lg:flex items-center">
           <ul className="flex items-center gap-5 sm:gap-7 text-xs sm:text-sm font-medium">
             {/* 1. Home */}
             <li>
@@ -104,7 +106,23 @@ export default function Header() {
             </li>
           </ul>
         </nav>
+
+        {/* Mobile Hamburger Button */}
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="flex lg:hidden items-center justify-center p-2 rounded-md text-gray-300 hover:text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-navigation"
+          aria-label={mobileMenuOpen ? 'Close main menu' : 'Open main menu'}
+        >
+          {mobileMenuOpen ? <CloseIcon size={24} /> : <MenuIcon size={24} />}
+        </button>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      <MobileNavigation isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
     </header>
   );
 }
+

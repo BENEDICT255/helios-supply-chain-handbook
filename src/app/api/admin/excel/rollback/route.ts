@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
       batchId,
       userId: activeUser.id,
       userEmail: activeUser.email || '',
+      supabaseClient: supabase,
     });
 
     return NextResponse.json(result);

@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DbImportBatch, DbDataSnapshot } from '@/types/database';
 import type { ValidationSummary } from './excelParser';
 import type { WorkbookDiffSummary } from './excelDiff';
 import { logAuditEntry } from './auditLog';
 
-const supabase = createClient();
+function getSupabase(client?: SupabaseClient) {
+  return client || createClient();
+}
 
 /**
  * Creates a new import batch record in Supabase database.
@@ -15,8 +18,10 @@ export async function createImportBatchRecord(params: {
   userEmail: string;
   validationSummary: ValidationSummary;
   diffSummary?: WorkbookDiffSummary;
+  supabaseClient?: SupabaseClient;
 }): Promise<DbImportBatch> {
-  const { fileName, userId, userEmail, validationSummary, diffSummary } = params;
+  const { fileName, userId, userEmail, validationSummary, diffSummary, supabaseClient } = params;
+  const supabase = getSupabase(supabaseClient);
 
   const status = validationSummary.hasBlockingErrors
     ? 'validation_failed'
@@ -46,7 +51,10 @@ export async function createImportBatchRecord(params: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error creating import batch record:', error);
+    throw new Error(error.message || 'Failed to create import batch record');
+  }
   return data as DbImportBatch;
 }
 
@@ -59,8 +67,10 @@ export async function applyImportBatch(params: {
   userEmail: string;
   diffSummary: WorkbookDiffSummary;
   publishImmediately?: boolean;
+  supabaseClient?: SupabaseClient;
 }): Promise<DbImportBatch> {
-  const { batchId, userId, userEmail, diffSummary, publishImmediately = false } = params;
+  const { batchId, userId, userEmail, diffSummary, publishImmediately = false, supabaseClient } = params;
+  const supabase = getSupabase(supabaseClient);
 
   // 1. Create Pre-Import Snapshots of all affected DB records
   const snapshotInserts: {
@@ -373,8 +383,10 @@ export async function rollbackImportBatch(params: {
   batchId: string;
   userId: string;
   userEmail: string;
+  supabaseClient?: SupabaseClient;
 }): Promise<DbImportBatch> {
-  const { batchId, userId, userEmail } = params;
+  const { batchId, userId, userEmail, supabaseClient } = params;
+  const supabase = getSupabase(supabaseClient);
 
   // 1. Fetch snapshots for this batch
   const { data: snapshots, error: snapshotError } = await supabase
@@ -382,7 +394,7 @@ export async function rollbackImportBatch(params: {
     .select('*')
     .eq('batch_id', batchId);
 
-  if (snapshotError) throw snapshotError;
+  if (snapshotError) throw new Error(snapshotError.message || 'Failed to fetch snapshots');
   const snapshotList = (snapshots as DbDataSnapshot[]) || [];
 
   if (snapshotList.length === 0) {
@@ -404,33 +416,17 @@ export async function rollbackImportBatch(params: {
         })
         .eq('id', snapshot.record_id);
 
-      if (!error) {
-        await logAuditEntry({
-          userId,
-          userEmail,
-          tableName: table,
-          recordId: snapshot.record_id,
-          action: 'update',
-          newData: recordData,
-        });
+      if (error) {
+        console.error(`Rollback error restoring record ${snapshot.record_id}:`, error);
       }
     } else if (snapshot.action_type === 'delete') {
-      // Re-insert deleted row
-      const { error } = await supabase.from(table).insert({
-        ...recordData,
-        updated_at: new Date().toISOString(),
-        updated_by: userId,
-      });
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq('id', snapshot.record_id);
 
-      if (!error) {
-        await logAuditEntry({
-          userId,
-          userEmail,
-          tableName: table,
-          recordId: snapshot.record_id,
-          action: 'create',
-          newData: recordData,
-        });
+      if (error) {
+        console.error(`Rollback error deleting inserted record ${snapshot.record_id}:`, error);
       }
     }
   }
@@ -450,44 +446,59 @@ export async function rollbackImportBatch(params: {
     .select()
     .single();
 
-  if (batchError) throw batchError;
+  if (batchError) throw new Error(batchError.message || 'Failed to update batch rollback status');
+
+  await logAuditEntry({
+    userId,
+    userEmail,
+    tableName: 'import_batches',
+    recordId: batchId,
+    action: 'update',
+    newData: updatedBatch as unknown as Record<string, unknown>,
+  });
+
   return updatedBatch as DbImportBatch;
 }
 
 /**
  * Fetch all import batches for the import history screen.
  */
-export async function getAllImportBatches(): Promise<DbImportBatch[]> {
+export async function getAllImportBatches(supabaseClient?: SupabaseClient): Promise<DbImportBatch[]> {
+  const supabase = getSupabase(supabaseClient);
   const { data, error } = await supabase
     .from('import_batches')
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to fetch import batches');
   return (data as DbImportBatch[]) || [];
 }
 
 /**
  * Fetch a single import batch by ID with its snapshots.
  */
-export async function getImportBatchById(batchId: string): Promise<{
+export async function getImportBatchById(
+  batchId: string,
+  supabaseClient?: SupabaseClient
+): Promise<{
   batch: DbImportBatch;
   snapshots: DbDataSnapshot[];
 }> {
+  const supabase = getSupabase(supabaseClient);
   const { data: batch, error: batchError } = await supabase
     .from('import_batches')
     .select('*')
     .eq('id', batchId)
     .single();
 
-  if (batchError) throw batchError;
+  if (batchError) throw new Error(batchError.message || 'Failed to fetch import batch');
 
   const { data: snapshots, error: snapshotError } = await supabase
     .from('data_snapshots')
     .select('*')
     .eq('batch_id', batchId);
 
-  if (snapshotError) throw snapshotError;
+  if (snapshotError) throw new Error(snapshotError.message || 'Failed to fetch batch snapshots');
 
   return {
     batch: batch as DbImportBatch,

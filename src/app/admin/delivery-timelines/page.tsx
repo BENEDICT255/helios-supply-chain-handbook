@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import AdminHeader from '@/components/admin/AdminHeader';
 import DataTable, { Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
@@ -23,6 +24,11 @@ import { deliveryTimelineSchema, DeliveryTimelineFormData } from '@/lib/validati
 export default function AdminDeliveryTimelinesPage() {
   const { data, loading, error, refetch } = useDeliveryTimelines();
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const paramHighlight = searchParams.get('highlight');
+
+  // Highlight State for newly inserted records
+  const [highlightedId, setHighlightedId] = useState<string | null>(paramHighlight);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,6 +164,7 @@ export default function AdminDeliveryTimelinesPage() {
           action: 'create',
           newData: created as unknown as Record<string, unknown>,
         });
+        setHighlightedId(created.id);
       }
 
       setIsModalOpen(false);
@@ -254,6 +261,7 @@ export default function AdminDeliveryTimelinesPage() {
           onDelete={(item) => setDeleteItem(item)}
           onToggleStatus={handleToggleStatus}
           searchPlaceholder="Search item, category, department..."
+          highlightedId={highlightedId}
         />
       )}
 

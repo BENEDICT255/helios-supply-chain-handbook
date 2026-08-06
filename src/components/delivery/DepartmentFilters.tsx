@@ -14,7 +14,7 @@ export default function DepartmentFilters({
   const allDepartments = ['All Departments', ...departments];
 
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by department">
+    <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full sm:flex-wrap" role="group" aria-label="Filter by department">
       {allDepartments.map((dept) => {
         const isSelected = selectedDepartment === dept;
         return (
@@ -22,7 +22,7 @@ export default function DepartmentFilters({
             key={dept}
             type="button"
             onClick={() => onSelectDepartment(dept)}
-            className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary-blue)] ${
+            className={`whitespace-nowrap shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--primary-blue)] ${
               isSelected
                 ? 'bg-[var(--primary-blue)] text-white'
                 : 'bg-white text-[var(--text-muted)] border border-[var(--border-grey)] hover:bg-[var(--light-grey)] hover:text-[var(--text-primary)]'

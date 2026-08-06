@@ -19,6 +19,7 @@ interface DataTableProps<T extends { id: string; status?: 'published' | 'draft' 
   onToggleStatus?: (item: T) => void;
   searchPlaceholder?: string;
   actionsHeader?: string;
+  highlightedId?: string | null;
 }
 
 export default function DataTable<T extends { id: string; status?: 'published' | 'draft' }>({
@@ -29,11 +30,22 @@ export default function DataTable<T extends { id: string; status?: 'published' |
   onToggleStatus,
   searchPlaceholder = 'Search records...',
   actionsHeader = 'Actions',
+  highlightedId,
 }: DataTableProps<T>) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+
+  React.useEffect(() => {
+    if (highlightedId) {
+      const targetId = highlightedId === 'new' && data.length > 0 ? data[0].id : highlightedId;
+      const el = document.getElementById(`row-${targetId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [highlightedId, data]);
 
   // Filter
   const filteredData = useMemo(() => {
@@ -178,11 +190,18 @@ export default function DataTable<T extends { id: string; status?: 'published' |
                 </td>
               </tr>
             ) : (
-              sortedData.map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-slate-50/70 transition-colors"
-                >
+              sortedData.map((item, idx) => {
+                const isHighlighted = highlightedId === item.id || (highlightedId === 'new' && idx === 0);
+                return (
+                  <tr
+                    key={item.id}
+                    id={`row-${item.id}`}
+                    className={`transition-all duration-500 ${
+                      isHighlighted
+                        ? 'bg-emerald-50/90 ring-2 ring-emerald-500/50 font-medium'
+                        : 'hover:bg-slate-50/70'
+                    }`}
+                  >
                   {columns.map((col) => (
                     <td
                       key={col.key}
@@ -233,8 +252,9 @@ export default function DataTable<T extends { id: string; status?: 'published' |
                     </td>
                   )}
                 </tr>
-              ))
-            )}
+              );
+            })
+          )}
           </tbody>
         </table>
       </div>

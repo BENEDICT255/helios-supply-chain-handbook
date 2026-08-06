@@ -60,8 +60,8 @@ export function createHandbookWorkbook(params: {
     ['IMPORTANT RULES FOR ADMINISTRATORS:'],
     ['1. The database remains the source of truth at all times.'],
     ['2. DO NOT change or rename column headings.'],
-    ['3. DO NOT modify existing Record IDs (Column A). Existing records require their ID.'],
-    ['4. For NEW records, leave the Record ID cell blank.'],
+    ['3. Record ID (Column A) is hidden in Excel for safety so users do not accidentally delete, edit, or duplicate UUIDs.'],
+    ['4. For NEW records added at the bottom of the table, leave the Record ID cell blank.'],
     ['5. Required fields must not be left empty (Item, Lead Time, Step Title, Description, etc.).'],
     ['6. Removing a row from this spreadsheet does NOT automatically delete it from the database.'],
     ['   Deletions must be explicitly confirmed during the import preview in the admin portal.'],
@@ -108,7 +108,7 @@ export function createHandbookWorkbook(params: {
 
   const deliverySheet = XLSX.utils.aoa_to_sheet([deliveryHeaders, ...deliveryRows]);
   deliverySheet['!cols'] = [
-    { wch: 38 }, // Record ID
+    { wch: 38, hidden: true }, // Record ID (Hidden in Excel)
     { wch: 30 }, // Department
     { wch: 30 }, // Category
     { wch: 30 }, // Item
@@ -151,7 +151,7 @@ export function createHandbookWorkbook(params: {
 
   const procurementSheet = XLSX.utils.aoa_to_sheet([procurementHeaders, ...procurementRows]);
   procurementSheet['!cols'] = [
-    { wch: 38 }, // Record ID
+    { wch: 38, hidden: true }, // Record ID (Hidden in Excel)
     { wch: 15 }, // Step Number
     { wch: 30 }, // Title
     { wch: 50 }, // Description

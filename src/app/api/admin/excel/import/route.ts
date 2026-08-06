@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       userEmail: activeUser.email || '',
       diffSummary,
       publishImmediately: !!publishImmediately,
+      supabaseClient: supabase,
     });
 
     return NextResponse.json(result);

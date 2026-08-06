@@ -33,20 +33,8 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Step 1: Strict Parsing & 28-point Validation
+    // Step 1: Strict Parsing & Validation
     const validationSummary = parseAndValidateWorkbook(buffer, file.name);
-
-    if (validationSummary.hasBlockingErrors) {
-      return NextResponse.json(
-        {
-          validationSummary,
-          diffSummary: null,
-          batchId: null,
-          message: 'Workbook validation failed with blocking errors',
-        },
-        { status: 422 }
-      );
-    }
 
     // Step 2: Fetch current DB state
     const currentDeliveryTimelines = await getAllDeliveryTimelines();
@@ -60,6 +48,20 @@ export async function POST(request: NextRequest) {
       dbProcurementSteps: currentProcurementSteps,
     });
 
+    if (validationSummary.hasBlockingErrors) {
+      return NextResponse.json(
+        {
+          validationSummary,
+          diffSummary,
+          batchId: null,
+          dbDeliveryTimelines: currentDeliveryTimelines,
+          dbProcurementSteps: currentProcurementSteps,
+          message: 'Workbook validation failed with blocking errors',
+        },
+        { status: 422 }
+      );
+    }
+
     // Step 4: Create Import Batch Record in DB
     const batchRecord = await createImportBatchRecord({
       fileName: file.name,
@@ -67,6 +69,7 @@ export async function POST(request: NextRequest) {
       userEmail: activeUser.email || '',
       validationSummary,
       diffSummary,
+      supabaseClient: supabase,
     });
 
     return NextResponse.json({
